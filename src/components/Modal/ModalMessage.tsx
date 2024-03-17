@@ -1,11 +1,7 @@
-import { useEffect, useState } from "react";
-import Button from "../../components/Button";
-import SwitchButton from "../../components/Button/SwitchButton";
-import FormFieldText from "../../components/Form/FormFieldText";
 import Modal from "../../components/Modal";
-import ToDoService from "../../services/ToDo/ToDoService";
 import IconSuccess from "../Icon/IconSuccess";
 import IconError from "../Icon/IconError";
+import { useModalStore } from "./modalStore";
 
 type Types = "success" | "warning" | "error";
 
@@ -22,8 +18,10 @@ const ModalMessage: React.FC<ToDoProps> = ({
   type,
   message = "",
 }) => {
+  const currentModalData = useModalStore((state) => state.current);
+
   return (
-    <Modal isShow={isShow} onClose={onClose}>
+    <Modal isShow={currentModalData?.isShow} onClose={onClose}>
       <div className="grid justfity-center gap-4 items-center h-fit">
         <div className="flex justify-center">
           {
@@ -31,14 +29,16 @@ const ModalMessage: React.FC<ToDoProps> = ({
               success: <IconSuccess />,
               warning: <IconError />,
               error: <IconError />,
-            }[type]
+            }[currentModalData?.type]
           }
         </div>
 
         <span
           className={
             "font-bold text-2xl text-center " +
-            (type == "success" ? "text-green-700" : "text-red-700")
+            (currentModalData?.type == "success"
+              ? "text-green-700"
+              : "text-red-700")
           }
         >
           {
@@ -46,11 +46,11 @@ const ModalMessage: React.FC<ToDoProps> = ({
               success: "Success!",
               warning: "Warning!",
               error: "Error!",
-            }[type]
+            }[currentModalData?.type]
           }
         </span>
 
-        <div className="text-center text-lg">{message}</div>
+        <div className="text-center text-lg">{currentModalData?.message}</div>
       </div>
     </Modal>
   );

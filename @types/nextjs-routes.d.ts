@@ -12,11 +12,9 @@ declare module "nextjs-routes" {
 
   export type Route =
     | DynamicRoute<"/api/auth/[...nextauth]", { "nextauth": string[] }>
-    | DynamicRoute<"/api/post/[id]", { "id": string }>
-    | StaticRoute<"/api/post">
-    | DynamicRoute<"/api/publish/[id]", { "id": string }>
-    | StaticRoute<"/">
-    | DynamicRoute<"/p/[id]", { "id": string }>;
+    | DynamicRoute<"/api/collection/[id]", { "id": string }>
+    | StaticRoute<"/api/collection">
+    | StaticRoute<"/">;
 
   interface StaticRoute<Pathname> {
     pathname: Pathname;

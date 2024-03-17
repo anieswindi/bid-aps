@@ -4,6 +4,7 @@ import "../styles/index.css";
 import Head from "next/head";
 import ModalLoader from "../components/Loader";
 import { SessionProvider } from "next-auth/react";
+import ModalMessage from "../components/Modal/ModalMessage";
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (
@@ -15,6 +16,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         <Component {...pageProps} />
       </SessionProvider>
       <ModalLoader />
+      <ModalMessage />
     </main>
   );
 };
