@@ -1,0 +1,55 @@
+// schema.prisma
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+    directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Post {
+    id        String  @id @default(cuid())
+    title     String
+    content   String?
+    published Boolean @default(false)
+    user      User?   @relation(fields: [user_id], references: [id])
+    user_id   String?
+}
+
+model Bid {
+    id            String      @id @default(cuid())
+    name          String
+    collection    Collection? @relation(fields: [collection_id], references: [id])
+    collection_id String?
+    user          User?       @relation(fields: [user_id], references: [id])
+    user_id       String?
+    stocks        Int
+    price         Int
+    status        String?
+}
+
+model User {
+    id        String   @id @default(cuid())
+    name      String?
+    email     String?  @unique
+    createdAt DateTime @default(now()) @map(name: "created_at")
+    updatedAt DateTime @updatedAt @map(name: "updated_at")
+    posts     Post[]
+    Bid       Bid[]
+
+    @@map(name: "users")
+}
+
+model Collection {
+    id          String  @id @default(cuid())
+    name        String?
+    description String?
+    stocks      Int
+    price       Int
+    Bid         Bid[]
+
+    @@map(name: "collections")
+}

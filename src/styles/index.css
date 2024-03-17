@@ -1,0 +1,46 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+.paginate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* text-base */
+  font-size: 1rem;
+  cursor: pointer;
+  margin: 1rem 0;
+  gap: 0.5rem;
+}
+
+.paginate-item {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #bebcc4;
+}
+
+.paginate-icon {
+  /* width: 24px;
+  height: 24px; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #3e3851;
+  border: 2px solid #3e3851;
+  border-radius: 33px;
+}
+
+.paginate-icon.disabled {
+  color: #bebcc4;
+  border: 2px solid #bebcc4;
+}
+
+.paginate-item.selected {
+  color: #19093a;
+  font-weight: bold;
+}
