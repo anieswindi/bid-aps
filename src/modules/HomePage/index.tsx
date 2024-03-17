@@ -92,14 +92,16 @@ const DummyData: DummyProps[] = [
   },
 ];
 
-function HomePage() {
-  const [data, setData] = useState(DummyData);
+function HomePage({ data }: { data?: any[] }) {
+  console.log("🚀 data: ", data);
+
+  const [dummy, setData] = useState(DummyData);
   const [isOpenCollection, setIsOpenCollection] = useState(false);
   const [isOpenBid, setIsOpenBid] = useState(false);
 
   const toggleExpanded = (name?: string) => {
     setData(
-      [...data].map((elm) =>
+      [...dummy].map((elm) =>
         elm.name === name ? { ...elm, open: !elm.open } : { ...elm }
       )
     );
@@ -111,7 +113,7 @@ function HomePage() {
         <Button onClick={() => setIsOpenCollection(true)}>Create</Button>
       </div>
       <div className="grid gap-4">
-        {data.map((dum, idx) => (
+        {dummy.map((dum, idx) => (
           <div key={idx + Math.random()}>
             <div className="border-default rounded-lg p-4 flex gap-4 items-center cursor-pointer justify-between w-full">
               <div

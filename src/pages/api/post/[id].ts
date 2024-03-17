@@ -8,8 +8,6 @@ export default async function handle(req, res) {
       where: { id: postId },
     });
 
-    console.log("🚀 res", res.json(post));
-
     res.json(post);
   } else {
     throw new Error(

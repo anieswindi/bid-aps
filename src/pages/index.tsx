@@ -5,27 +5,23 @@ import prisma from "../lib/prisma";
 import HomePage from "../modules/HomePage";
 
 export const getStaticProps: GetStaticProps = async () => {
-  const feed = await prisma.post.findMany({
+  const collection = await prisma.collection.findMany({
     include: {
-      user: {
-        select: { name: true },
-      },
+      bids: true,
     },
   });
   return {
-    props: { feed },
+    props: { collection },
     revalidate: 10,
   };
 };
 
 type Props = {
-  feed: PostProps[];
+  collection: any[];
 };
 
 const Blog: React.FC<Props> = (props) => {
-  console.log("🚀 blog", props);
-
-  return <HomePage />;
+  return <HomePage data={props.collection ?? []} />;
 };
 
 export default Blog;
