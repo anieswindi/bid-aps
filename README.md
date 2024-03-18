@@ -50,6 +50,23 @@ user: Hershel_Romaguera@hotmail.com
 password: 12345678
 ```
 
+6. Answer the following question:
+  - How would you monitor the application to ensure it is running smoothly?
+  # I monitor the application using vercel deployment ![bid-aps-link](https://bid-aps-v2.vercel.app/login) 
+
+
+  - How would you address scalability and performance?
+  # For perfomance in frontend, I'm just render some data that should I use, not all the data rendered. 
+
+
+  - Trade-offs you had to choose when doing this challenge (the things you would do different with more time and resources)
+  # Actually I never using Prisma, but I dedicated my full weekend day to learn about Prisma model, how the queries work, and how create relation on database (I think this mine is totally not perfect and not suitable with the requirements but I do the best).
+
+  
+
+
+
+
 ## Notes
 
 ![Login Page](https://github.com/anieswindi/bid-aps/blob/master/public/login_page.png)
