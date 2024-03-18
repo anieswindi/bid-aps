@@ -23,7 +23,7 @@ const IconError: React.FC<{ size?: number }> = ({ size = 100 }) => {
         <stop offset="1" stopColor="#e52030"></stop>
       </linearGradient>
       <path
-        fill="url(#wRKXFJsqHCxLE9yyOYHkza_fYgQxDaH069W_gr1)"
+        fill="#e52030"
         d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"
       ></path>
       <path

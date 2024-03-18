@@ -12,6 +12,16 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🚀 seeding...");
 
+  // await prisma.collection.deleteMany({
+  //   where: {
+  //     id: {
+  //       not: {
+  //         contains: "-",
+  //       },
+  //     },
+  //   },
+  // });
+
   // for (let i = 0; i <= 100; i++) {
   //   await prisma.collection.create({
   //     data: {

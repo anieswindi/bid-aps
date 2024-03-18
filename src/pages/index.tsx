@@ -33,13 +33,14 @@ const Blog: React.FC<Props> = (props) => {
     props.collection ?? []
   );
   const setModalMessage = useModalStore((state) => state.setModalMessage);
+  const setLoading = useLoaderStore((state) => state.setLoading);
 
   const refetch = async () => {
-    console.log("🚀 masuk refetch 1");
+    setLoading(true);
     await fetch("/api/collection")
       .then((res) => res.json())
       .then((res) => {
-        console.log("🚀 masuk refetch 2");
+        setLoading(false);
         setModalMessage({
           isShow: true,
           type: "success",

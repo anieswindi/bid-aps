@@ -5,6 +5,7 @@ import Head from "next/head";
 import ModalLoader from "../components/Loader";
 import { SessionProvider } from "next-auth/react";
 import ModalMessage from "../components/Modal/ModalMessage";
+import Layout from "../components/Layout";
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (
@@ -12,9 +13,11 @@ const App = ({ Component, pageProps }: AppProps) => {
       <Head>
         <title>Bid App</title>
       </Head>
-      <SessionProvider session={pageProps.session}>
+
+      <Layout>
         <Component {...pageProps} />
-      </SessionProvider>
+      </Layout>
+
       <ModalLoader />
       <ModalMessage />
     </main>

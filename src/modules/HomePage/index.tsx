@@ -8,6 +8,8 @@ import { Pagination } from "../../components/Pagination";
 import { useLoaderStore } from "../../components/Loader/loaderStore";
 import IconError from "../../components/Icon/IconError";
 import IconSuccess from "../../components/Icon/IconSuccess";
+import { userInfo } from "../../utils/auth";
+import { useRouter } from "next/router";
 
 function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
   const [items, setItems] = useState([]);
@@ -22,6 +24,7 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
     update: false,
     delete: false,
   });
+  const user = userInfo();
 
   const [loadingBid, setBidLoading] = useState({
     update: false,
@@ -118,27 +121,75 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
     }
   }, [data]);
 
-  return (
-    <div className="p-16">
-      <h1 className="mb-4">List Collection ({items.length})</h1>
-      <div className="flex justify-end mb-8">
-        <Button
-          onClick={() => {
-            setType("add");
-            setIsOpenCollection(true);
-          }}
-        >
-          Create
-        </Button>
-      </div>
+  const itemsFinals = items.filter((a) => a.bids.length > 9);
 
-      <div className="h-[75vh]">
-        <div className="grid gap-4">
-          {items
+  const renderButtonCollection = (bids, id) => {
+    if (bids.some((a) => a.user_id === user.user_id)) {
+      return (
+        <div className="flex justify-end gap-4">
+          <Button
+            variant="secondary"
+            state={loading.update ? "loading" : "active"}
+            onClick={() => onGetDetail(id, "update")}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="red"
+            state={loading.delete ? "loading" : "active"}
+            onClick={() => onGetDetail(id, "delete")}
+          >
+            Delete
+          </Button>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex justify-end gap-4">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setType("add");
+              setIsOpenBid(true);
+              setCurrentCollection(id);
+            }}
+          >
+            Place Bid
+          </Button>
+        </div>
+      );
+    }
+  };
+
+  if (!user) {
+    return <></>;
+  } else {
+    return (
+      <div className="p-16">
+        <Header />
+        <h1 className="mb-4">List Collection ({itemsFinals.length})</h1>
+        <div className="flex justify-end mb-8">
+          <Button
+            onClick={() => {
+              setType("add");
+              setIsOpenCollection(true);
+            }}
+          >
+            Create
+          </Button>
+        </div>
+
+        <div className="grid gap-4 mb-8">
+          {itemsFinals
             .slice((currentPage - 1) * pageSize, currentPage * pageSize)
             .map((dum, idx) => (
               <div key={idx + Math.random()}>
-                <div className="border-default rounded-lg p-4 flex gap-4 items-center cursor-pointer justify-between w-full">
+                <div
+                  className={
+                    (dum.open ? "rounded-t-lg " : "rounded-lg ") +
+                    " border-default p-4 flex gap-4 items-center cursor-pointer justify-between w-full"
+                  }
+                >
                   <div
                     className="flex gap-4"
                     onClick={() => toggleExpanded(dum.name)}
@@ -152,59 +203,26 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
                     {dum.name}
                   </div>
 
-                  {idx !== 0 ? (
-                    <div className="flex justify-end gap-4">
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          setType("add");
-                          setIsOpenBid(true);
-                          setCurrentCollection(dum.id);
-                        }}
-                      >
-                        Place Bid
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex justify-end gap-4">
-                      <Button
-                        variant="secondary"
-                        state={loading.update ? "loading" : "active"}
-                        onClick={() => onGetDetail(dum.id, "update")}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="red"
-                        state={loading.delete ? "loading" : "active"}
-                        onClick={() => onGetDetail(dum.id, "delete")}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  )}
+                  {renderButtonCollection(dum.bids, dum.id)}
                 </div>
 
                 <div
                   className={
                     dum.open
-                      ? "pl-8 mt-4 grid gap-4 transition-all duration-500 ease-in"
+                      ? "p-8 grid gap-4 transition-max-height rounded-b-lg duration-500 ease-in bg-gray-100"
                       : "hidden"
                   }
                 >
                   {dum.bids && dum.bids.length
-                    ? dum.bids.map((elm, i) => (
-                        <div
-                          className="border-default rounded-lg p-4 flex justify-between"
-                          key={Math.random() + i}
-                        >
-                          {elm.name}
+                    ? dum.bids.map((elm, i) => {
+                        let button = null;
 
-                          {idx !== 0 ? (
+                        if (dum.bids.some((a) => a.user_id === user.user_id)) {
+                          button = (
                             <div className="flex justify-end gap-4">
                               <Button
                                 variant="secondary"
-                                state={loadingBid.update ? "loading" : "active"}
+                                state="active"
                                 onClick={() => onBidDetail(elm.id, "update")}
                               >
                                 Edit
@@ -216,7 +234,9 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
                                 Cancel
                               </Button>
                             </div>
-                          ) : (
+                          );
+                        } else {
+                          button = (
                             <div className="flex justify-end gap-4">
                               {elm.status === "pending" ? (
                                 <>
@@ -249,49 +269,77 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
                                 </>
                               )}
                             </div>
-                          )}
-                        </div>
-                      ))
+                          );
+                        }
+
+                        return (
+                          <div
+                            className="border-2 border-gray-500 rounded-lg p-4 flex justify-between"
+                            key={Math.random() + i}
+                          >
+                            {elm.name}
+
+                            {button}
+                          </div>
+                        );
+                      })
                     : null}
                 </div>
               </div>
             ))}
         </div>
-      </div>
-      <div className="h-[10vh]">
-        {items && items.length ? (
+
+        {itemsFinals && itemsFinals.length ? (
           <Pagination
             currentPage={currentPage}
-            totalCount={items.length}
+            totalCount={itemsFinals.length}
             pageSize={pageSize}
             onPageChange={(e) => handleChange(e)}
           />
         ) : null}
-      </div>
 
-      <ModalBid
-        data={currentData}
-        collectionId={currentCollection}
-        type={type as Types}
-        isShow={isOpenBid}
-        refetch={refetch}
-        onClose={() => {
-          setType("add");
-          setIsOpenBid(false);
-        }}
-      />
-      <ModalCollection
-        data={currentData}
-        type={type as Types}
-        refetch={refetch}
-        isShow={isOpenCollection}
-        onClose={() => {
-          setType("add");
-          setIsOpenCollection(false);
-        }}
-      />
-    </div>
-  );
+        <ModalBid
+          data={currentData}
+          collectionId={currentCollection}
+          type={type as Types}
+          isShow={isOpenBid}
+          refetch={refetch}
+          onClose={() => {
+            setType("add");
+            setIsOpenBid(false);
+          }}
+        />
+        <ModalCollection
+          data={currentData}
+          type={type as Types}
+          refetch={refetch}
+          isShow={isOpenCollection}
+          onClose={() => {
+            setType("add");
+            setIsOpenCollection(false);
+          }}
+        />
+      </div>
+    );
+  }
 }
 
 export default HomePage;
+
+const Header = () => {
+  const user = userInfo();
+  const router = useRouter();
+
+  const onSignOut = () => {
+    localStorage.removeItem("bid-app-user");
+    router.push("/login");
+  };
+  return (
+    <div className="flex gap-4 justify-end mb-6">
+      <span>({user?.email ?? "unknown user"})</span>
+      <span className="cursor-pointer" onClick={onSignOut}>
+        Log out
+      </span>
+    </div>
+  );
+};
