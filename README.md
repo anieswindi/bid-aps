@@ -29,7 +29,7 @@ yarn install
 
 2. Environment file (.env.example):
 Please copy and paste .env from .env.example file
-![Env](https://github.com/anieswindi/to-do-app/blob/main/public/env.png)
+![Env](https://github.com/anieswindi/bid-aps/blob/main/public/env.png)
 
 
 
@@ -48,18 +48,18 @@ npx prisma studio
 
 ## Notes
 
-![Home Page](https://github.com/anieswindi/to-do-app/blob/main/public/home.png)
+![Home Page](https://github.com/anieswindi/bid-aps/blob/main/public/home.png)
 
 
-![Add Collection](https://github.com/anieswindi/to-do-app/blob/main/public/add_collection.png)
-![Delete Collection](https://github.com/anieswindi/to-do-app/blob/main/public/delete_collection.png)
-![Update Collection](https://github.com/anieswindi/to-do-app/blob/main/public/update_collection.png)
+![Add Collection](https://github.com/anieswindi/bid-aps/blob/main/public/add_collection.png)
+![Delete Collection](https://github.com/anieswindi/bid-aps/blob/main/public/delete_collection.png)
+![Update Collection](https://github.com/anieswindi/bid-aps/blob/main/public/update_collection.png)
 
 
-![List Bid](https://github.com/anieswindi/to-do-app/blob/main/public/list_bid.png)
-![Add Bid/Place Bid](https://github.com/anieswindi/to-do-app/blob/main/public/add_bid.png)
+![List Bid](https://github.com/anieswindi/bid-aps/blob/main/public/list_bid.png)
+![Add Bid/Place Bid](https://github.com/anieswindi/bid-aps/blob/main/public/add_bid.png)
 
 
 
-![Success Update Data Popup (Add,Update,Delete)](https://github.com/anieswindi/to-do-app/blob/main/public/success_update.png)
+![Success Update Data Popup (Add,Update,Delete)](https://github.com/anieswindi/bid-aps/blob/main/public/success_update.png)
 
