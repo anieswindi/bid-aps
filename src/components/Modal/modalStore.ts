@@ -23,6 +23,6 @@ export const useModalStore = create<ModalStore>((set) => ({
 
     setTimeout(() => {
       set({ current: { isShow: false } });
-    }, 2000);
+    }, 10000);
   },
 }));
