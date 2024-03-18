@@ -9,7 +9,7 @@ const FormRadioButton: React.FC<FormProps> = ({ data, selected }) => {
   return (
     <div className="flex flex-col gap-4">
       {data.map((item) => (
-        <div className="flex items-center">
+        <div className="flex items-center" key={Math.random()}>
           <input
             checked={item.status}
             id={item.label}

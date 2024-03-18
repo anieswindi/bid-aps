@@ -3,7 +3,7 @@ import Content from "./ButtonContent";
 import { Route } from "nextjs-routes";
 import { ObjectOmit } from "../../utils/objects";
 
-export type Variant = "primary" | "secondary" | "white" | "red";
+export type Variant = "primary" | "secondary" | "white" | "red" | "success"
 export type Size = "small" | "medium" | "large";
 export type BtnState = "active" | "disabled" | "loading";
 export type RoundedSize = "small" | "medium" | "large" | "full";
@@ -44,6 +44,11 @@ export const styles: {
     active: "bg-white border-blue-600 hover:bg-blue-05 !text-blue-500",
     disabled: "bg-gray-100 border-gray-600 text-gray-600 cursor-not-allowed",
     loading: "bg-white border-blue-500 !text-blue-500",
+  },
+  success: {
+    active: "bg-green-100 border-green-500 !text-green-500",
+    disabled: "bg-gray-200 border-gray-200 text-gray-600 cursor-not-allowed",
+    loading: "bg-green-500 border-green-500",
   },
   white: {
     active: "bg-white border-white hover:bg-blue-05 !text-blue-500",

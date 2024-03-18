@@ -32,19 +32,20 @@ const Blog: React.FC<Props> = (props) => {
   const [currentCollection, setCurrentCollection] = useState(
     props.collection ?? []
   );
-  const setLoading = useLoaderStore((state) => state.setLoading);
   const setModalMessage = useModalStore((state) => state.setModalMessage);
 
   const refetch = async () => {
+    console.log("🚀 masuk refetch 1");
     await fetch("/api/collection")
       .then((res) => res.json())
       .then((res) => {
-        setCurrentCollection(res);
+        console.log("🚀 masuk refetch 2");
         setModalMessage({
           isShow: true,
           type: "success",
           message: "Success update data!",
         });
+        setCurrentCollection(res);
       });
   };
 

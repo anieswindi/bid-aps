@@ -1,13 +1,13 @@
 import React from "react";
 
-const IconError: React.FC = () => {
+const IconError: React.FC<{ size?: number }> = ({ size = 100 }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       x="0px"
       y="0px"
-      width="100"
-      height="100"
+      width={size}
+      height={size}
       viewBox="0 0 48 48"
     >
       <linearGradient
@@ -18,9 +18,9 @@ const IconError: React.FC = () => {
         y2="38.142"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" stop-color="#f44f5a"></stop>
-        <stop offset=".443" stop-color="#ee3d4a"></stop>
-        <stop offset="1" stop-color="#e52030"></stop>
+        <stop offset="0" stopColor="#f44f5a"></stop>
+        <stop offset=".443" stopColor="#ee3d4a"></stop>
+        <stop offset="1" stopColor="#e52030"></stop>
       </linearGradient>
       <path
         fill="url(#wRKXFJsqHCxLE9yyOYHkza_fYgQxDaH069W_gr1)"

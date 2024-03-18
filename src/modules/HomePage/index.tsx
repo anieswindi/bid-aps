@@ -6,8 +6,8 @@ import ModalBid from "../../modules/HomePage/ModalBid";
 import ModalCollection, { Types } from "../../modules/HomePage/ModalCollection";
 import { Pagination } from "../../components/Pagination";
 import { useLoaderStore } from "../../components/Loader/loaderStore";
-import { useModalStore } from "../../components/Modal/modalStore";
-import prisma from "../../lib/prisma";
+import IconError from "../../components/Icon/IconError";
+import IconSuccess from "../../components/Icon/IconSuccess";
 
 function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
   const [items, setItems] = useState([]);
@@ -18,7 +18,7 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
   const [currentCollection, setCurrentCollection] = useState(null);
   const [type, setType] = useState("add");
   const [currentData, setCurrentData] = useState();
-  const [loading, setLoading] = useState({
+  const [loading, setIsLoading] = useState({
     update: false,
     delete: false,
   });
@@ -27,6 +27,8 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
     update: false,
     cancel: false,
   });
+
+  const setLoader = useLoaderStore((state) => state.setLoading);
 
   const toggleExpanded = (name?: string) => {
     setItems(
@@ -41,14 +43,14 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
   };
 
   const onGetDetail = async (id, types) => {
-    setLoading({
+    setIsLoading({
       ...loading,
       [types]: true,
     });
     await fetch(`/api/collection/${id}`)
       .then((res) => res.json())
       .then((data) => {
-        setLoading({
+        setIsLoading({
           ...loading,
           [types]: false,
         });
@@ -82,6 +84,34 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
       });
   };
 
+  const onPutStatus = async (
+    _bidId: string,
+    _collectionId: string,
+    status: string
+  ) => {
+    setLoader(true);
+    let param = new URLSearchParams({
+      bidId: _bidId,
+      collectionId: _collectionId,
+      status: status,
+    });
+    let url = `/api/bid/update-status?${param}`;
+
+    await fetch(url, {
+      method: "PUT",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) {
+          refetch();
+          setLoader(false);
+        }
+      })
+      .catch((err) => {
+        console.log("🚀 err", err);
+      });
+  };
+
   useEffect(() => {
     if (data) {
       setItems(data.map((elm) => ({ ...elm, open: false })));
@@ -101,108 +131,134 @@ function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
           Create
         </Button>
       </div>
-      <div className="grid gap-4">
-        {items
-          .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-          .map((dum, idx) => (
-            <div key={idx + Math.random()}>
-              <div className="border-default rounded-lg p-4 flex gap-4 items-center cursor-pointer justify-between w-full">
-                <div
-                  className="flex gap-4"
-                  onClick={() => toggleExpanded(dum.name)}
-                >
-                  {dum.open ? (
-                    <IconArrow isCaret={true} direction="up" />
-                  ) : (
-                    <IconArrowDown size={20} />
-                  )}
 
-                  {dum.name}
+      <div className="h-[75vh]">
+        <div className="grid gap-4">
+          {items
+            .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+            .map((dum, idx) => (
+              <div key={idx + Math.random()}>
+                <div className="border-default rounded-lg p-4 flex gap-4 items-center cursor-pointer justify-between w-full">
+                  <div
+                    className="flex gap-4"
+                    onClick={() => toggleExpanded(dum.name)}
+                  >
+                    {dum.open ? (
+                      <IconArrow isCaret={true} direction="up" />
+                    ) : (
+                      <IconArrowDown size={20} />
+                    )}
+
+                    {dum.name}
+                  </div>
+
+                  {idx !== 0 ? (
+                    <div className="flex justify-end gap-4">
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setType("add");
+                          setIsOpenBid(true);
+                          setCurrentCollection(dum.id);
+                        }}
+                      >
+                        Place Bid
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex justify-end gap-4">
+                      <Button
+                        variant="secondary"
+                        state={loading.update ? "loading" : "active"}
+                        onClick={() => onGetDetail(dum.id, "update")}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="red"
+                        state={loading.delete ? "loading" : "active"}
+                        onClick={() => onGetDetail(dum.id, "delete")}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
-                {idx !== 0 ? (
-                  <div className="flex justify-end gap-4">
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setType('add');
-                        setIsOpenBid(true);
-                        setCurrentCollection(dum.id)
-                      }}
-                    >
-                      Place Bid
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex justify-end gap-4">
-                    <Button
-                      variant="secondary"
-                      state={loading.update ? "loading" : "active"}
-                      onClick={() => onGetDetail(dum.id, "update")}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="red"
-                      state={loading.delete ? "loading" : "active"}
-                      onClick={() => onGetDetail(dum.id, "delete")}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                )}
+                <div
+                  className={
+                    dum.open
+                      ? "pl-8 mt-4 grid gap-4 transition-all duration-500 ease-in"
+                      : "hidden"
+                  }
+                >
+                  {dum.bids && dum.bids.length
+                    ? dum.bids.map((elm, i) => (
+                        <div
+                          className="border-default rounded-lg p-4 flex justify-between"
+                          key={Math.random() + i}
+                        >
+                          {elm.name}
+
+                          {idx !== 0 ? (
+                            <div className="flex justify-end gap-4">
+                              <Button
+                                variant="secondary"
+                                state={loadingBid.update ? "loading" : "active"}
+                                onClick={() => onBidDetail(elm.id, "update")}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="red"
+                                onClick={() => onBidDetail(elm.id, "delete")}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex justify-end gap-4">
+                              {elm.status === "pending" ? (
+                                <>
+                                  <Button
+                                    variant="success"
+                                    state="active"
+                                    onClick={() =>
+                                      onPutStatus(elm.id, dum.id, "accept")
+                                    }
+                                  >
+                                    Accept
+                                  </Button>
+                                  <Button
+                                    variant="red"
+                                    state="active"
+                                    onClick={() =>
+                                      onPutStatus(elm.id, dum.id, "reject")
+                                    }
+                                  >
+                                    Reject
+                                  </Button>
+                                </>
+                              ) : (
+                                <>
+                                  {elm.status == "reject" ? (
+                                    <IconError size={30} />
+                                  ) : (
+                                    <IconSuccess size={30} />
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    : null}
+                </div>
               </div>
-
-              <div
-                className={
-                  dum.open
-                    ? "pl-8 mt-4 grid gap-4 transition-all duration-500 ease-in"
-                    : "hidden"
-                }
-              >
-                {dum.bids && dum.bids.length
-                  ? dum.bids.map((elm, i) => (
-                      <div
-                        className="border-default rounded-lg p-4 flex justify-between"
-                        key={Math.random() + i}
-                      >
-                        {elm.name}
-
-                        {idx !== 0 ? (
-                          <div className="flex justify-end gap-4">
-                            <Button
-                              variant="secondary"
-                              state={loadingBid.update ? "loading" : "active"}
-                              onClick={() => onBidDetail(elm.id, "update")}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="red"
-                              onClick={() => onBidDetail(elm.id, "delete")}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex justify-end gap-4">
-                            {elm.status === "pending" ? (
-                              <>
-                                <Button variant="secondary">Accept</Button>
-                                <Button variant="red">Reject</Button>
-                              </>
-                            ) : (
-                              <Button variant="secondary">{elm.status}</Button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  : null}
-              </div>
-            </div>
-          ))}
-
+            ))}
+        </div>
+      </div>
+      <div className="h-[10vh]">
         {items && items.length ? (
           <Pagination
             currentPage={currentPage}
