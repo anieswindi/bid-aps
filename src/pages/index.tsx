@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { GetStaticProps } from "next";
 import prisma from "../lib/prisma";
 import HomePage from "../modules/HomePage";
+import { useLoaderStore } from "../components/Loader/loaderStore";
+import { useModalStore } from "../components/Modal/modalStore";
 
 export const getStaticProps: GetStaticProps = async () => {
-  const users = await prisma.user.findMany();
-
   const collection = await prisma.collection.findMany({
     where: {
       NOT: {
@@ -19,7 +19,7 @@ export const getStaticProps: GetStaticProps = async () => {
     },
   });
   return {
-    props: { collection, users: JSON.parse(JSON.stringify(users)) },
+    props: { collection },
     revalidate: 10,
   };
 };
@@ -29,7 +29,26 @@ type Props = {
 };
 
 const Blog: React.FC<Props> = (props) => {
-  return <HomePage data={props.collection ?? []} />;
+  const [currentCollection, setCurrentCollection] = useState(
+    props.collection ?? []
+  );
+  const setLoading = useLoaderStore((state) => state.setLoading);
+  const setModalMessage = useModalStore((state) => state.setModalMessage);
+
+  const refetch = async () => {
+    await fetch("/api/collection")
+      .then((res) => res.json())
+      .then((res) => {
+        setCurrentCollection(res);
+        setModalMessage({
+          isShow: true,
+          type: "success",
+          message: "Success update data!",
+        });
+      });
+  };
+
+  return <HomePage data={currentCollection} refetch={refetch} />;
 };
 
 export default Blog;

@@ -9,98 +9,29 @@ const prisma = new PrismaClient();
 //   email: faker.internet.email(),
 // }));
 
-// post dummy bids
-// const dataBid = Array.from({ length: 10 }).map(() => ({
-//
-//   name: "Bid " + faker.commerce.productAdjective(),
-//   stocks: faker.number.int({ max: 30 }),
-//   price: faker.number.int({ min: 1, max: 50 }),
-//   status: "pending",
-// }));
-
-// post dummy collection
-const dataCollection = Array.from({ length: 100 }).map((el, i) => ({
-  id: i + 1,
-  name: "Collection " + faker.commerce.productName(),
-  description: faker.commerce.productDescription(),
-  stocks: faker.number.int({ max: 50 }),
-  price: faker.number.int({ min: 10, max: 100 }),
-  bids: [
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-    {
-      id: faker.string.uuid(),
-      name: "Bid " + faker.commerce.productAdjective(),
-      stocks: faker.number.int({ max: 30 }),
-      price: faker.number.int({ min: 1, max: 50 }),
-      status: "pending",
-    },
-  ],
-}));
-
 async function main() {
   console.log("🚀 seeding...");
+
+  // for (let i = 0; i <= 100; i++) {
+  //   await prisma.collection.create({
+  //     data: {
+  //       id: faker.string.uuid(),
+  //       name: "Collection " + faker.commerce.productName(),
+  //       description: faker.commerce.productDescription(),
+  //       stocks: faker.number.int({ max: 50 }),
+  //       price: faker.number.int({ min: 10, max: 100 }),
+  //       bids: {
+  //         create: Array.from({ length: 10 }).map(() => ({
+  //           id: faker.string.uuid(),
+  //           name: "Bid " + faker.commerce.productAdjective(),
+  //           stocks: faker.number.int({ max: 30 }),
+  //           price: faker.number.int({ min: 1, max: 50 }),
+  //           status: "pending",
+  //         })),
+  //       },
+  //     },
+  //   });
+  // }
 
   // delete collection where bids === 0
   // await prisma.bid.deleteMany({
@@ -112,9 +43,6 @@ async function main() {
   //     },
   //   },
   // });
-
-  // post 10 dummy collection which bids 10 data
-  await prisma.collection.createMany({ data: dataCollection });
 
   // post dummy user where bids => 10 data
   // await prisma.user.createMany({ dataUser });

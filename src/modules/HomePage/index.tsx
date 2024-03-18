@@ -7,21 +7,30 @@ import ModalCollection, { Types } from "../../modules/HomePage/ModalCollection";
 import { Pagination } from "../../components/Pagination";
 import { useLoaderStore } from "../../components/Loader/loaderStore";
 import { useModalStore } from "../../components/Modal/modalStore";
+import prisma from "../../lib/prisma";
 
-function HomePage({ data }: { data?: any[] }) {
-  const [dummy, setData] = useState([]);
+function HomePage({ data, refetch }: { data?: any[]; refetch?(): void }) {
+  const [items, setItems] = useState([]);
   const [isOpenCollection, setIsOpenCollection] = useState(false);
   const [isOpenBid, setIsOpenBid] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [currentCollection, setCurrentCollection] = useState(null);
   const [type, setType] = useState("add");
   const [currentData, setCurrentData] = useState();
-  const [loading, setLoading] = useState(false);
-  
-  
+  const [loading, setLoading] = useState({
+    update: false,
+    delete: false,
+  });
+
+  const [loadingBid, setBidLoading] = useState({
+    update: false,
+    cancel: false,
+  });
+
   const toggleExpanded = (name?: string) => {
-    setData(
-      [...dummy].map((elm) =>
+    setItems(
+      [...items].map((elm) =>
         elm.name === name ? { ...elm, open: !elm.open } : { ...elm }
       )
     );
@@ -32,15 +41,41 @@ function HomePage({ data }: { data?: any[] }) {
   };
 
   const onGetDetail = async (id, types) => {
-    setLoading(!loading);
+    setLoading({
+      ...loading,
+      [types]: true,
+    });
     await fetch(`/api/collection/${id}`)
       .then((res) => res.json())
       .then((data) => {
-        setLoading(!loading);
+        setLoading({
+          ...loading,
+          [types]: false,
+        });
         setCurrentData(data);
         setType(types);
         setIsOpenCollection(true);
-        
+      })
+      .catch((err) => {
+        console.log("🚀 err: ", err);
+      });
+  };
+
+  const onBidDetail = async (id, types) => {
+    setBidLoading({
+      ...loadingBid,
+      [types]: true,
+    });
+    await fetch(`/api/bid/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setBidLoading({
+          ...loadingBid,
+          [types]: false,
+        });
+        setCurrentData(data);
+        setType(types);
+        setIsOpenBid(true);
       })
       .catch((err) => {
         console.log("🚀 err: ", err);
@@ -49,13 +84,13 @@ function HomePage({ data }: { data?: any[] }) {
 
   useEffect(() => {
     if (data) {
-      setData(data.map((elm) => ({ ...elm, open: false })));
+      setItems(data.map((elm) => ({ ...elm, open: false })));
     }
   }, [data]);
 
   return (
     <div className="p-16">
-      <h1 className="mb-4">List Collection</h1>
+      <h1 className="mb-4">List Collection ({items.length})</h1>
       <div className="flex justify-end mb-8">
         <Button
           onClick={() => {
@@ -67,7 +102,7 @@ function HomePage({ data }: { data?: any[] }) {
         </Button>
       </div>
       <div className="grid gap-4">
-        {dummy
+        {items
           .slice((currentPage - 1) * pageSize, currentPage * pageSize)
           .map((dum, idx) => (
             <div key={idx + Math.random()}>
@@ -87,20 +122,29 @@ function HomePage({ data }: { data?: any[] }) {
 
                 {idx !== 0 ? (
                   <div className="flex justify-end gap-4">
-                    <Button variant="secondary">Place Bid</Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setType('add');
+                        setIsOpenBid(true);
+                        setCurrentCollection(dum.id)
+                      }}
+                    >
+                      Place Bid
+                    </Button>
                   </div>
                 ) : (
                   <div className="flex justify-end gap-4">
                     <Button
                       variant="secondary"
-                      state={loading ? "loading" : "active"}
+                      state={loading.update ? "loading" : "active"}
                       onClick={() => onGetDetail(dum.id, "update")}
                     >
                       Edit
                     </Button>
                     <Button
                       variant="red"
-                      state={loading ? "loading" : "active"}
+                      state={loading.delete ? "loading" : "active"}
                       onClick={() => onGetDetail(dum.id, "delete")}
                     >
                       Delete
@@ -128,14 +172,17 @@ function HomePage({ data }: { data?: any[] }) {
                           <div className="flex justify-end gap-4">
                             <Button
                               variant="secondary"
-                              onClick={() => {
-                                setType("update");
-                                setIsOpenBid(true);
-                              }}
+                              state={loadingBid.update ? "loading" : "active"}
+                              onClick={() => onBidDetail(elm.id, "update")}
                             >
                               Edit
                             </Button>
-                            <Button variant="red">Cancel</Button>
+                            <Button
+                              variant="red"
+                              onClick={() => onBidDetail(elm.id, "delete")}
+                            >
+                              Cancel
+                            </Button>
                           </div>
                         ) : (
                           <div className="flex justify-end gap-4">
@@ -156,10 +203,10 @@ function HomePage({ data }: { data?: any[] }) {
             </div>
           ))}
 
-        {dummy && dummy.length ? (
+        {items && items.length ? (
           <Pagination
             currentPage={currentPage}
-            totalCount={dummy.length}
+            totalCount={items.length}
             pageSize={pageSize}
             onPageChange={(e) => handleChange(e)}
           />
@@ -167,22 +214,24 @@ function HomePage({ data }: { data?: any[] }) {
       </div>
 
       <ModalBid
+        data={currentData}
+        collectionId={currentCollection}
         type={type as Types}
         isShow={isOpenBid}
+        refetch={refetch}
         onClose={() => {
           setType("add");
           setIsOpenBid(false);
-          setLoading(false)
         }}
       />
       <ModalCollection
         data={currentData}
         type={type as Types}
+        refetch={refetch}
         isShow={isOpenCollection}
         onClose={() => {
           setType("add");
           setIsOpenCollection(false);
-          setLoading(false)
         }}
       />
     </div>

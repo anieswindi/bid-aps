@@ -13,69 +13,81 @@ export type Collection = {
   stocks?: number;
   price?: number;
 };
-export type ToDoProps = {
+export type MProps = {
   isShow?: boolean;
   onClose?(): void;
   type?: Types;
   data?: Collection;
+  refetch?(): void;
 };
 
-const ModalCollection: React.FC<ToDoProps> = ({
+const ModalCollection: React.FC<MProps> = ({
   isShow = false,
   onClose,
   type = "add",
   data,
+  refetch,
 }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({
+    add: false,
+    update: false,
+    delete: false,
+  });
   const [currentBody, setCurrentBody] = useState<Collection>({});
-  const setModalMessage = useModalStore((state) => state.setModalMessage);
 
   useEffect(() => {
     if (data) {
       setCurrentBody(data);
-    }
-  }, [data]);
-
-  const onDeleteData = async () => {
-    setLoading(!loading);
-    const response = await fetch(`/api/collection/${currentBody?.id}`, {
-      method: "DELETE",
-    });
-
-    if (response.status == 200) {
-      setLoading(!loading);
-      onClose();
-    }
-  };
-
-  const onPostData = async () => {
-    setLoading(!loading);
-    const response = await fetch("/api/collection", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(currentBody),
-    });
-
-    if (response.status == 200) {
-      setLoading(!loading);
-      onClose();
+    } else {
       setCurrentBody({
         name: "",
         description: "",
         stocks: 0,
         price: 0,
       });
-
-      setModalMessage({
-        isShow: true,
-        type:'success',
-        message: "Success add collection",
-      });
     }
+  }, [data]);
+
+  const onDeleteData = async () => {
+    setLoading({ add: false, update: false, delete: true });
+    await fetch(`/api/collection/${currentBody?.id}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.id) {
+          setLoading({ add: false, update: false, delete: false });
+          onClose();
+          refetch();
+        }
+      });
+  };
+
+  const onPostData = async () => {
+    setLoading({ add: true, update: false, delete: false });
+    await fetch("/api/collection", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(currentBody),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.id) {
+          setCurrentBody({
+            name: "",
+            description: "",
+            stocks: 0,
+            price: 0,
+          });
+          setLoading({ add: false, update: false, delete: false });
+          onClose();
+          refetch();
+        }
+      });
   };
 
   const onPutData = async () => {
-    setLoading(!loading);
+    setLoading({ add: false, update: true, delete: false });
     await fetch(`/api/collection/${currentBody?.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -84,7 +96,7 @@ const ModalCollection: React.FC<ToDoProps> = ({
       .then((res) => res.json())
       .then((data) => {
         if (data) {
-          setLoading(false);
+          setLoading({ add: false, update: false, delete: false });
           onClose();
           setCurrentBody({
             name: "",
@@ -92,11 +104,7 @@ const ModalCollection: React.FC<ToDoProps> = ({
             stocks: 0,
             price: 0,
           });
-          setModalMessage({
-            isShow: true,
-            type:'success',
-            message: "Success update collection",
-          });
+          refetch();
         }
       });
   };
@@ -112,14 +120,12 @@ const ModalCollection: React.FC<ToDoProps> = ({
           {
             add: (
               <FormCollection
-                type={type}
                 currentBody={currentBody}
                 handleUpdate={setCurrentBody}
               />
             ),
             update: (
               <FormCollection
-                type={type}
                 currentBody={currentBody}
                 handleUpdate={setCurrentBody}
               />
@@ -139,9 +145,8 @@ const ModalCollection: React.FC<ToDoProps> = ({
               <>
                 <Button
                   variant="red"
-                  state={loading ? "loading" : "active"}
+                  state={loading.delete ? "loading" : "active"}
                   onClick={onDeleteData}
-                  size="large"
                 >
                   Yes
                 </Button>
@@ -149,19 +154,13 @@ const ModalCollection: React.FC<ToDoProps> = ({
             ),
           }[type] || (
             <>
-              <Button
-                variant="secondary"
-                state="active"
-                onClick={onClose}
-                size="large"
-              >
+              <Button variant="secondary" state="active" onClick={onClose}>
                 Cancel
               </Button>
               <Button
                 variant="primary"
-                state={loading ? "loading" : "active"}
+                state={loading.add || loading.update ? "loading" : "active"}
                 onClick={type == "add" ? onPostData : onPutData}
-                size="large"
               >
                 {type == "add" ? "Save" : "Update"}
               </Button>
@@ -176,7 +175,7 @@ const ModalCollection: React.FC<ToDoProps> = ({
 
 export default ModalCollection;
 
-function FormCollection({ type, currentBody, handleUpdate }) {
+function FormCollection({ currentBody, handleUpdate }) {
   return (
     <div className="grid gap-4">
       <div className="grid gap-2 mb-4">

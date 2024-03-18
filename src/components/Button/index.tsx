@@ -51,9 +51,9 @@ export const styles: {
     loading: "bg-white border-white !text-blue-500",
   },
   red: {
-    active: "bg-red-100 border-red-700 !text-red-700",
+    active: "bg-red-100 border-red-500 !text-red-500",
     disabled: "bg-gray-200 border-gray-200 text-gray-600 cursor-not-allowed",
-    loading: "bg-red-100 border-red-700",
+    loading: "bg-red-100 border-red-500 !text-red-500 py-1",
   },
   rounded: {
     small: "rounded-default",
